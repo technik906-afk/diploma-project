@@ -1,0 +1,59 @@
+---
+# =============================================================================
+# Site Playbook - MediaWiki Infrastructure
+# =============================================================================
+# 
+# Использование:
+#   ansible-playbook site.yml
+#   ansible-playbook site.yml --tags mediawiki
+#   ansible-playbook site.yml --limit app
+# =============================================================================
+
+- name: Настройка балансировщика нагрузки (Nginx)
+  hosts: lb
+  become: true
+  tags:
+    - nginx
+    - lb
+    - infrastructure
+  roles:
+    - nginx-lb
+
+- name: Настройка серверов приложений MediaWiki
+  hosts: app
+  become: true
+  tags:
+    - mediawiki
+    - app
+    - infrastructure
+  roles:
+    - mediawiki
+
+- name: Настройка PostgreSQL (Primary + Replica)
+  hosts: db
+  become: true
+  tags:
+    - postgresql
+    - db
+    - infrastructure
+  roles:
+    - postgresql
+
+- name: Настройка Zabbix Server
+  hosts: zabbix
+  become: true
+  tags:
+    - zabbix
+    - monitoring
+    - infrastructure
+  roles:
+    - zabbix
+
+- name: Настройка сервера бэкапов
+  hosts: backup
+  become: true
+  tags:
+    - backup
+    - infrastructure
+  roles:
+    - backup

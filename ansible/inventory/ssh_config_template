@@ -1,0 +1,82 @@
+# =============================================================================
+# SSH Config для подключения к серверам Yandex Cloud
+# =============================================================================
+# 
+# Инструкция:
+# 1. Скопируйте этот файл в ~/.ssh/config
+# 2. Замените <LB_PUBLIC_IP> на реальный публичный IP балансировщика
+#    (можно получить через: terraform output lb_public_ip)
+# 3. Убедитесь, что файл ~/.ssh/yandex_cloud существует и имеет права 600
+#
+# Использование:
+#   ssh yc-lb      # Подключение к балансировщику
+#   ssh yc-app-01  # Подключение к APP-01 через jump-host
+#   ssh yc-db-01   # Подключение к DB-01 через jump-host
+# =============================================================================
+
+# --- Jump Host (Load Balancer) ---
+Host yc-lb
+    HostName <LB_PUBLIC_IP>
+    User ubuntu
+    IdentityFile ~/.ssh/yandex_cloud
+    IdentitiesOnly yes
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+
+# --- Application Servers ---
+Host yc-app-01
+    HostName 10.0.2.10
+    User ubuntu
+    IdentityFile ~/.ssh/yandex_cloud
+    IdentitiesOnly yes
+    ProxyJump yc-lb
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+
+Host yc-app-02
+    HostName 10.0.2.11
+    User ubuntu
+    IdentityFile ~/.ssh/yandex_cloud
+    IdentitiesOnly yes
+    ProxyJump yc-lb
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+
+# --- Database Servers ---
+Host yc-db-01
+    HostName 10.0.3.10
+    User ubuntu
+    IdentityFile ~/.ssh/yandex_cloud
+    IdentitiesOnly yes
+    ProxyJump yc-lb
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+
+Host yc-db-02
+    HostName 10.0.3.11
+    User ubuntu
+    IdentityFile ~/.ssh/yandex_cloud
+    IdentitiesOnly yes
+    ProxyJump yc-lb
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+
+# --- Zabbix Server ---
+Host yc-zabbix
+    HostName 10.0.4.10
+    User ubuntu
+    IdentityFile ~/.ssh/yandex_cloud
+    IdentitiesOnly yes
+    ProxyJump yc-lb
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+
+# --- Backup Server ---
+Host yc-backup
+    HostName 10.0.5.10
+    User ubuntu
+    IdentityFile ~/.ssh/yandex_cloud
+    IdentitiesOnly yes
+    ProxyJump yc-lb
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
