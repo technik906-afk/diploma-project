@@ -1,0 +1,26 @@
+#!/bin/bash
+# MediaWiki Database Backup Script
+
+set -euo pipefail
+
+BACKUP_DIR="{{ backup_db_dir }}"
+RETENTION_DAYS="{{ backup_retention_days }}"
+DB_HOST="{{ hostvars[groups['db'][0]]['ansible_host'] }}"
+DB_NAME="{{ mediawiki_db_name }}"
+DB_USER="{{ mediawiki_db_user }}"
+DB_PASS="{{ mediawiki_db_password }}"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BACKUP_FILE="${BACKUP_DIR}/mediawiki_db_${TIMESTAMP}.sql.gz"
+
+echo "[$(date)] Starting database backup..."
+
+# Dump database
+PGPASSWORD="${DB_PASS}" pg_dump -h "${DB_HOST}" -U "${DB_USER}" -d "${DB_NAME}" | gzip > "${BACKUP_FILE}"
+
+echo "[$(date)] Backup saved to ${BACKUP_FILE}"
+
+# Remove old backups
+find "${BACKUP_DIR}" -name "mediawiki_db_*.sql.gz" -mtime +${RETENTION_DAYS} -delete
+echo "[$(date)] Cleaned up backups older than ${RETENTION_DAYS} days"
+
+echo "[$(date)] Database backup completed successfully"

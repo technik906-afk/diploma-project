@@ -37,3 +37,10 @@ credentials.tfvars
 *.tfvars
 secrets.yml
 .env
+key.json
+*.pem
+*.key
+ansible/LocalSettings.php
+
+# Binaries
+terraform_*.zip

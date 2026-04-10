@@ -1,0 +1,176 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: not postgresql_skip_install
+
+- name: Install PostgreSQL
+  apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2
+    state: present
+  when: not postgresql_skip_install
+
+- name: Ensure PostgreSQL cluster exists
+  shell: |
+    if ! pg_lsclusters | grep -q "{{ postgresql_version }}.*online"; then
+      pg_dropcluster --stop {{ postgresql_version }} main 2>/dev/null || true
+      pg_createcluster {{ postgresql_version }} main --start
+    fi
+  args:
+    executable: /bin/bash
+  changed_when: false
+  when: not postgresql_skip_install
+
+- name: Configure PostgreSQL listen_addresses
+  lineinfile:
+    path: /etc/postgresql/{{ postgresql_version }}/main/postgresql.conf
+    regexp: "^#?listen_addresses"
+    line: "listen_addresses = '*'"
+
+- name: Configure pg_hba.conf
+  template:
+    src: pg_hba.conf.j2
+    dest: /etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf
+    owner: postgres
+    group: postgres
+    mode: '0640'
+
+- name: Restart PostgreSQL to apply config
+  shell: pg_ctlcluster {{ postgresql_version }} main restart
+  args:
+    executable: /bin/bash
+  changed_when: true
+
+- name: Wait for PostgreSQL to be ready
+  wait_for:
+    port: 5432
+    delay: 3
+    timeout: 60
+
+# --- Master-specific tasks ---
+- name: Create MediaWiki database (Master only)
+  become_user: postgres
+  command: createdb {{ mediawiki_db_name }}
+  args:
+    creates: /var/lib/postgresql/.wiki_db_created
+  when: role == 'primary'
+
+- name: Mark wiki DB as created
+  file:
+    path: /var/lib/postgresql/.wiki_db_created
+    state: touch
+  when: role == 'primary'
+
+- name: Create MediaWiki database user (Master only)
+  become_user: postgres
+  command: >
+    psql -c "CREATE USER {{ mediawiki_db_user }} WITH PASSWORD '{{ mediawiki_db_password }}';"
+  args:
+    creates: /var/lib/postgresql/.wiki_user_created
+  failed_when: false
+  when: role == 'primary'
+
+- name: Grant privileges (Master only)
+  become_user: postgres
+  command: >
+    psql -c "GRANT ALL PRIVILEGES ON DATABASE {{ mediawiki_db_name }} TO {{ mediawiki_db_user }};"
+  when: role == 'primary'
+
+- name: Mark wiki user as created
+  file:
+    path: /var/lib/postgresql/.wiki_user_created
+    state: touch
+  when: role == 'primary'
+
+# --- Replication setup ---
+- name: Create replication user (Master only)
+  become_user: postgres
+  command: >
+    psql -c "CREATE USER {{ replication_user }} WITH REPLICATION PASSWORD '{{ replication_password }}';"
+  failed_when: false
+  when: role == 'primary'
+
+- name: Configure postgresql.conf for replication (Master)
+  lineinfile:
+    path: /etc/postgresql/{{ postgresql_version }}/main/postgresql.conf
+    regexp: "^#?{{ item.key }}"
+    line: "{{ item.key }} = {{ item.value }}"
+  loop:
+    - { key: "wal_level", value: "'replica'" }
+    - { key: "max_wal_senders", value: "3" }
+    - { key: "wal_keep_size", value: "'1GB'" }
+  when: role == 'primary'
+
+- name: Restart PostgreSQL on master for replication settings
+  shell: pg_ctlcluster {{ postgresql_version }} main restart
+  args:
+    executable: /bin/bash
+  changed_when: true
+  when: role == 'primary'
+
+- name: Wait for master PostgreSQL after restart
+  wait_for:
+    port: 5432
+    delay: 3
+    timeout: 60
+  when: role == 'primary'
+
+- name: Configure postgresql.conf for replica
+  lineinfile:
+    path: /etc/postgresql/{{ postgresql_version }}/main/postgresql.conf
+    regexp: "^#?{{ item.key }}"
+    line: "{{ item.key }} = {{ item.value }}"
+  loop:
+    - { key: "hot_standby", value: "'on'" }
+  when: role == 'replica'
+
+- name: Set up streaming replication (Replica only)
+  block:
+    - name: Stop PostgreSQL on replica
+      shell: pg_ctlcluster {{ postgresql_version }} main stop
+      args:
+        executable: /bin/bash
+      failed_when: false
+      changed_when: true
+
+    - name: Remove existing data directory on replica
+      file:
+        path: /var/lib/postgresql/{{ postgresql_version }}/main
+        state: absent
+
+    - name: Create .pgpass for replication
+      shell: |
+        echo "{{ hostvars[groups['db'][0]]['ansible_host'] }}:5432:replication:{{ replication_user }}:{{ replication_password }}" > /var/lib/postgresql/.pgpass
+        chown postgres:postgres /var/lib/postgresql/.pgpass
+        chmod 600 /var/lib/postgresql/.pgpass
+      args:
+        executable: /bin/bash
+      changed_when: true
+
+    - name: Create base backup from master
+      become_user: postgres
+      command: >
+        pg_basebackup -h {{ hostvars[groups['db'][0]]['ansible_host'] }}
+        -U {{ replication_user }}
+        -D /var/lib/postgresql/{{ postgresql_version }}/main
+        -Fp -Xs -R -w
+      args:
+        creates: /var/lib/postgresql/{{ postgresql_version }}/main/PG_VERSION
+      timeout: 300
+
+    - name: Start PostgreSQL on replica
+      shell: pg_ctlcluster {{ postgresql_version }} main start
+      args:
+        executable: /bin/bash
+      changed_when: true
+
+    - name: Wait for replica to be ready
+      wait_for:
+        port: 5432
+        delay: 3
+        timeout: 60
+  when: role == 'replica'

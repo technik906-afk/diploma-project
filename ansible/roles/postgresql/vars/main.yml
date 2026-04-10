@@ -1,0 +1,9 @@
+---
+postgresql_version: "14"
+mediawiki_db_name: "my_wiki"
+mediawiki_db_user: "wikiuser"
+mediawiki_db_password: "WikiPass2024!"
+replication_user: "replicator"
+replication_password: "ReplPass2024!"
+# Флаг: пропустить установку PostgreSQL если он уже развёрнут
+postgresql_skip_install: false

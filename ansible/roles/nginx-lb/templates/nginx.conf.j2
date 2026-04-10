@@ -1,0 +1,45 @@
+upstream mediawiki_backend {
+    ip_hash;
+{% for host in groups['app'] %}
+    server {{ hostvars[host]['ansible_host'] }}:80;
+{% endfor %}
+}
+
+upstream zabbix_backend {
+{% for host in groups['zabbix'] %}
+    server {{ hostvars[host]['ansible_host'] }}:80;
+{% endfor %}
+}
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    server_name _;
+
+    location /zabbix {
+        proxy_pass http://zabbix_backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 10s;
+        proxy_read_timeout 30s;
+    }
+
+    location / {
+        proxy_pass http://mediawiki_backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 10s;
+        proxy_read_timeout 30s;
+    }
+
+    location /health {
+        access_log off;
+        return 200 "OK\n";
+        add_header Content-Type text/plain;
+    }
+}

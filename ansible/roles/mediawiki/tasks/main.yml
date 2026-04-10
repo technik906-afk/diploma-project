@@ -1,0 +1,106 @@
+---
+- name: Update apt cache
+  shell: apt-get update -y
+  args:
+    executable: /bin/bash
+  changed_when: true
+
+- name: Stop and disable Apache2 (if running)
+  systemd:
+    name: apache2
+    state: stopped
+    enabled: no
+  failed_when: false
+
+- name: Install PHP and dependencies
+  shell: >
+    DEBIAN_FRONTEND=noninteractive apt-get install -y
+    php php-fpm php-pgsql php-xml php-mbstring php-curl php-intl php-gd php-zip php-json php-mysql libapache2-mod-php composer
+  args:
+    executable: /bin/bash
+  changed_when: true
+
+- name: Install Nginx
+  shell: DEBIAN_FRONTEND=noninteractive apt-get install -y nginx
+  args:
+    executable: /bin/bash
+  changed_when: true
+
+- name: Download MediaWiki
+  shell: >
+    curl -fSL --connect-timeout 30 --max-time 600
+    "https://releases.wikimedia.org/mediawiki/{{ mediawiki_major_version }}/mediawiki-{{ mediawiki_version }}.tar.gz"
+    -o "/tmp/mediawiki-{{ mediawiki_version }}.tar.gz"
+  args:
+    creates: "/tmp/mediawiki-{{ mediawiki_version }}.tar.gz"
+
+- name: Extract MediaWiki
+  unarchive:
+    src: "/tmp/mediawiki-{{ mediawiki_version }}.tar.gz"
+    dest: /var/www/
+    remote_src: yes
+    creates: "/var/www/mediawiki-{{ mediawiki_version }}"
+
+- name: Create MediaWiki symlink
+  file:
+    src: "/var/www/mediawiki-{{ mediawiki_version }}"
+    dest: /var/www/mediawiki
+    state: link
+
+- name: Set ownership
+  file:
+    path: "/var/www/mediawiki-{{ mediawiki_version }}"
+    owner: www-data
+    group: www-data
+    recurse: yes
+
+- name: Configure Nginx for MediaWiki
+  template:
+    src: mediawiki.conf.j2
+    dest: /etc/nginx/sites-available/mediawiki
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart nginx
+
+- name: Enable MediaWiki site
+  file:
+    src: /etc/nginx/sites-available/mediawiki
+    dest: /etc/nginx/sites-enabled/mediawiki
+    state: link
+  notify: Restart nginx
+
+- name: Remove default site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Restart nginx
+
+- name: Configure PHP-FPM pool
+  template:
+    src: www.conf.j2
+    dest: "/etc/php/{{ php_version }}/fpm/pool.d/www.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart php-fpm
+
+- name: Ensure Nginx is running and enabled
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Ensure PHP-FPM is running and enabled
+  systemd:
+    name: "php{{ php_version }}-fpm"
+    state: started
+    enabled: yes
+
+- name: Create images directory
+  file:
+    path: /var/www/mediawiki/images
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'

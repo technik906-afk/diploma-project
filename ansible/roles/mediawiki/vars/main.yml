@@ -1,0 +1,8 @@
+---
+mediawiki_version: "1.43.0"
+mediawiki_major_version: "1.43"
+php_version: "8.1"
+mediawiki_db_host: "{{ hostvars[groups['db'][0]]['ansible_host'] }}"
+mediawiki_db_name: "my_wiki"
+mediawiki_db_user: "wikiuser"
+mediawiki_db_password: "WikiPass2024!"

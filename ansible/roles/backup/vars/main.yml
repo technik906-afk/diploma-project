@@ -1,0 +1,11 @@
+---
+backup_root_dir: "/backup/mediawiki"
+backup_db_dir: "/backup/mediawiki/db"
+backup_fs_dir: "/backup/mediawiki/fs"
+backup_scripts_dir: "/opt/backup"
+backup_retention_days: 7
+backup_db_hour: 2
+backup_fs_hour: 3
+mediawiki_db_name: "my_wiki"
+mediawiki_db_user: "wikiuser"
+mediawiki_db_password: "WikiPass2024!"

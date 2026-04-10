@@ -100,7 +100,7 @@ variable "subnets" {
 variable "image_family" {
   description = "Семейство образов ОС"
   type        = string
-  default     = "ubuntu-22-04-lts"
+  default     = "ubuntu-2204-lts"
 }
 
 variable "image_folder_id" {

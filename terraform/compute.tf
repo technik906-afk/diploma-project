@@ -11,7 +11,7 @@ resource "yandex_compute_instance" "lb-01" {
   resources {
     cores         = var.instance_type["lb"].vcpu
     memory        = var.instance_type["lb"].memory
-    core_fraction = 50
+    core_fraction = 20
   }
 
   boot_disk {
@@ -25,13 +25,13 @@ resource "yandex_compute_instance" "lb-01" {
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.lb.id
-    v4_address         = "10.0.1.10"
+    ip_address         = "10.0.1.10"
     nat                = true
     security_group_ids = [yandex_vpc_security_group.sg_lb.id]
   }
 
   metadata = {
-    ssh-keys = local.ssh_keys
+    ssh-keys = join("\n", local.ssh_keys)
   }
 
   scheduling_policy {
@@ -55,7 +55,7 @@ resource "yandex_compute_instance" "app-01" {
   resources {
     cores         = var.instance_type["app"].vcpu
     memory        = var.instance_type["app"].memory
-    core_fraction = 50
+    core_fraction = 20
   }
 
   boot_disk {
@@ -69,13 +69,13 @@ resource "yandex_compute_instance" "app-01" {
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.app.id
-    v4_address         = "10.0.2.10"
+    ip_address         = "10.0.2.10"
     nat                = false
     security_group_ids = [yandex_vpc_security_group.sg_app.id]
   }
 
   metadata = {
-    ssh-keys = local.ssh_keys
+    ssh-keys = join("\n", local.ssh_keys)
   }
 
   scheduling_policy {
@@ -99,7 +99,7 @@ resource "yandex_compute_instance" "app-02" {
   resources {
     cores         = var.instance_type["app"].vcpu
     memory        = var.instance_type["app"].memory
-    core_fraction = 50
+    core_fraction = 20
   }
 
   boot_disk {
@@ -113,13 +113,13 @@ resource "yandex_compute_instance" "app-02" {
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.app.id
-    v4_address         = "10.0.2.11"
+    ip_address         = "10.0.2.11"
     nat                = false
     security_group_ids = [yandex_vpc_security_group.sg_app.id]
   }
 
   metadata = {
-    ssh-keys = local.ssh_keys
+    ssh-keys = join("\n", local.ssh_keys)
   }
 
   scheduling_policy {
@@ -143,7 +143,7 @@ resource "yandex_compute_instance" "db-01" {
   resources {
     cores         = var.instance_type["db"].vcpu
     memory        = var.instance_type["db"].memory
-    core_fraction = 50
+    core_fraction = 20
   }
 
   boot_disk {
@@ -157,13 +157,13 @@ resource "yandex_compute_instance" "db-01" {
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.db.id
-    v4_address         = "10.0.3.10"
+    ip_address         = "10.0.3.10"
     nat                = false
     security_group_ids = [yandex_vpc_security_group.sg_db.id]
   }
 
   metadata = {
-    ssh-keys = local.ssh_keys
+    ssh-keys = join("\n", local.ssh_keys)
   }
 
   scheduling_policy {
@@ -187,7 +187,7 @@ resource "yandex_compute_instance" "db-02" {
   resources {
     cores         = var.instance_type["db"].vcpu
     memory        = var.instance_type["db"].memory
-    core_fraction = 50
+    core_fraction = 20
   }
 
   boot_disk {
@@ -201,13 +201,13 @@ resource "yandex_compute_instance" "db-02" {
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.db.id
-    v4_address         = "10.0.3.11"
+    ip_address         = "10.0.3.11"
     nat                = false
     security_group_ids = [yandex_vpc_security_group.sg_db.id]
   }
 
   metadata = {
-    ssh-keys = local.ssh_keys
+    ssh-keys = join("\n", local.ssh_keys)
   }
 
   scheduling_policy {
@@ -231,7 +231,7 @@ resource "yandex_compute_instance" "zabbix-01" {
   resources {
     cores         = var.instance_type["zabbix"].vcpu
     memory        = var.instance_type["zabbix"].memory
-    core_fraction = 50
+    core_fraction = 20
   }
 
   boot_disk {
@@ -245,13 +245,13 @@ resource "yandex_compute_instance" "zabbix-01" {
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.zabbix.id
-    v4_address         = "10.0.4.10"
+    ip_address         = "10.0.4.10"
     nat                = false
     security_group_ids = [yandex_vpc_security_group.sg_zabbix.id]
   }
 
   metadata = {
-    ssh-keys = local.ssh_keys
+    ssh-keys = join("\n", local.ssh_keys)
   }
 
   scheduling_policy {
@@ -275,7 +275,7 @@ resource "yandex_compute_instance" "backup-01" {
   resources {
     cores         = var.instance_type["backup"].vcpu
     memory        = var.instance_type["backup"].memory
-    core_fraction = 50
+    core_fraction = 20
   }
 
   boot_disk {
@@ -289,13 +289,13 @@ resource "yandex_compute_instance" "backup-01" {
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.backup.id
-    v4_address         = "10.0.5.10"
+    ip_address         = "10.0.5.10"
     nat                = false
     security_group_ids = [yandex_vpc_security_group.sg_backup.id]
   }
 
   metadata = {
-    ssh-keys = local.ssh_keys
+    ssh-keys = join("\n", local.ssh_keys)
   }
 
   scheduling_policy {

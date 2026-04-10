@@ -1,0 +1,57 @@
+---
+- name: Update apt cache
+  shell: apt-get update -y
+  args:
+    executable: /bin/bash
+  changed_when: true
+
+- name: Install required packages
+  shell: DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql-client rsync
+  args:
+    executable: /bin/bash
+  changed_when: true
+
+- name: Create backup directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+  loop:
+    - "{{ backup_root_dir }}"
+    - "{{ backup_db_dir }}"
+    - "{{ backup_fs_dir }}"
+    - "{{ backup_scripts_dir }}"
+
+- name: Deploy database backup script
+  template:
+    src: backup-db.sh.j2
+    dest: "{{ backup_scripts_dir }}/backup-db.sh"
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Deploy filesystem backup script
+  template:
+    src: backup-fs.sh.j2
+    dest: "{{ backup_scripts_dir }}/backup-fs.sh"
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Set up database backup cron job
+  cron:
+    name: "MediaWiki Database Backup"
+    hour: "{{ backup_db_hour }}"
+    minute: "0"
+    job: "{{ backup_scripts_dir }}/backup-db.sh"
+    user: root
+
+- name: Set up filesystem backup cron job
+  cron:
+    name: "MediaWiki Filesystem Backup"
+    hour: "{{ backup_fs_hour }}"
+    minute: "0"
+    job: "{{ backup_scripts_dir }}/backup-fs.sh"
+    user: root

@@ -26,12 +26,20 @@ resource "yandex_vpc_security_group" "sg_lb" {
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # SSH от админа
+  # SSH от админа (с любого IP)
   ingress {
     protocol       = "TCP"
-    description    = "SSH from Admin"
+    description    = "SSH from Anywhere"
     port           = 22
-    v4_cidr_blocks = ["${var.admin_ip}/32"]
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Zabbix Agent от Zabbix сервера
+  ingress {
+    protocol       = "TCP"
+    description    = "Zabbix Agent from Zabbix"
+    port           = 10050
+    v4_cidr_blocks = [var.subnets["zabbix"].cidr]
   }
 
   # Исходящий весь
@@ -58,12 +66,20 @@ resource "yandex_vpc_security_group" "sg_app" {
     v4_cidr_blocks = [var.subnets["lb"].cidr]
   }
 
-  # SSH от админа
+  # SSH только от LB (jump-host)
   ingress {
     protocol       = "TCP"
-    description    = "SSH from Admin"
+    description    = "SSH from LB subnet"
     port           = 22
-    v4_cidr_blocks = ["${var.admin_ip}/32"]
+    v4_cidr_blocks = [var.subnets["lb"].cidr]
+  }
+
+  # Zabbix Agent от Zabbix сервера
+  ingress {
+    protocol       = "TCP"
+    description    = "Zabbix Agent from Zabbix"
+    port           = 10050
+    v4_cidr_blocks = [var.subnets["zabbix"].cidr]
   }
 
   # Исходящий весь
@@ -90,6 +106,14 @@ resource "yandex_vpc_security_group" "sg_db" {
     v4_cidr_blocks = [var.subnets["app"].cidr]
   }
 
+  # PostgreSQL от Zabbix
+  ingress {
+    protocol       = "TCP"
+    description    = "PostgreSQL from Zabbix"
+    port           = 5432
+    v4_cidr_blocks = [var.subnets["zabbix"].cidr]
+  }
+
   # PostgreSQL от backup сервера
   ingress {
     protocol       = "TCP"
@@ -98,12 +122,28 @@ resource "yandex_vpc_security_group" "sg_db" {
     v4_cidr_blocks = ["${var.subnets["backup"].cidr}"]
   }
 
-  # SSH от админа
+  # PostgreSQL для репликации между DB серверами
   ingress {
     protocol       = "TCP"
-    description    = "SSH from Admin"
+    description    = "PostgreSQL replication (internal)"
+    port           = 5432
+    v4_cidr_blocks = [var.subnets["db"].cidr]
+  }
+
+  # SSH только от LB (jump-host)
+  ingress {
+    protocol       = "TCP"
+    description    = "SSH from LB subnet"
     port           = 22
-    v4_cidr_blocks = ["${var.admin_ip}/32"]
+    v4_cidr_blocks = [var.subnets["lb"].cidr]
+  }
+
+  # Zabbix Agent от Zabbix сервера
+  ingress {
+    protocol       = "TCP"
+    description    = "Zabbix Agent from Zabbix"
+    port           = 10050
+    v4_cidr_blocks = [var.subnets["zabbix"].cidr]
   }
 
   # Исходящий весь
@@ -122,12 +162,12 @@ resource "yandex_vpc_security_group" "sg_zabbix" {
 
   labels = local.common_tags
 
-  # HTTP из интернета (для веб-интерфейса)
+  # HTTP только от балансировщика (доступ через LB proxy)
   ingress {
     protocol       = "TCP"
-    description    = "HTTP from Internet"
+    description    = "HTTP from LB"
     port           = 80
-    v4_cidr_blocks = ["0.0.0.0/0"]
+    v4_cidr_blocks = [var.subnets["lb"].cidr]
   }
 
   # Zabbix Agent от всех внутренних
@@ -146,12 +186,12 @@ resource "yandex_vpc_security_group" "sg_zabbix" {
     v4_cidr_blocks = ["10.0.0.0/8"]
   }
 
-  # SSH от админа
+  # SSH только от LB (jump-host)
   ingress {
     protocol       = "TCP"
-    description    = "SSH from Admin"
+    description    = "SSH from LB subnet"
     port           = 22
-    v4_cidr_blocks = ["${var.admin_ip}/32"]
+    v4_cidr_blocks = [var.subnets["lb"].cidr]
   }
 
   # Исходящий весь
@@ -170,12 +210,20 @@ resource "yandex_vpc_security_group" "sg_backup" {
 
   labels = local.common_tags
 
-  # SSH от приложений и БД
+  # SSH только от LB (jump-host), приложений и БД
   ingress {
     protocol       = "TCP"
-    description    = "SSH from APP and DB"
+    description    = "SSH from LB, APP and DB subnets"
     port           = 22
-    v4_cidr_blocks = [var.subnets["app"].cidr, var.subnets["db"].cidr]
+    v4_cidr_blocks = [var.subnets["lb"].cidr, var.subnets["app"].cidr, var.subnets["db"].cidr]
+  }
+
+  # Zabbix Agent от Zabbix сервера
+  ingress {
+    protocol       = "TCP"
+    description    = "Zabbix Agent from Zabbix"
+    port           = 10050
+    v4_cidr_blocks = [var.subnets["zabbix"].cidr]
   }
 
   # Исходящий весь

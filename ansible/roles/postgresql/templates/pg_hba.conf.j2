@@ -1,0 +1,24 @@
+# PostgreSQL Client Authentication Configuration
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# Local connections
+local   all             postgres                                peer
+local   all             all                                     md5
+
+# IPv4 local connections
+host    all             all             127.0.0.1/32            md5
+
+# IPv6 local connections
+host    all             all             ::1/128                 md5
+
+# Allow connections from application servers
+host    all             all             10.0.2.0/24             md5
+
+# Allow connections from zabbix server
+host    all             all             10.0.4.0/24             md5
+
+# Allow connections from backup server
+host    all             all             10.0.5.0/24             md5
+
+# Replication connections
+host    replication     {{ replication_user }}  10.0.3.0/24     md5

@@ -1,0 +1,8 @@
+---
+zabbix_version: "6.4"
+zabbix_db_password: "ZabbixPass2024!"
+zabbix_php_timezone: "Europe/Moscow"
+zabbix_server_ip: "127.0.0.1"
+# PostgreSQL connection (local)
+postgresql_db_host: "localhost"
+postgresql_db_port: "5432"

@@ -1,0 +1,141 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install prerequisites
+  apt:
+    name:
+      - wget
+      - gnupg
+    state: present
+
+- name: Download Zabbix release package
+  get_url:
+    url: "https://repo.zabbix.com/zabbix/{{ zabbix_version }}/ubuntu/pool/main/z/zabbix-release/zabbix-release_{{ zabbix_version }}-1+ubuntu22.04_all.deb"
+    dest: "/tmp/zabbix-release.deb"
+    timeout: 60
+
+- name: Install Zabbix release package
+  apt:
+    deb: "/tmp/zabbix-release.deb"
+    state: present
+
+- name: Update cache after Zabbix repo install
+  apt:
+    update_cache: yes
+
+- name: Install Zabbix Server, Frontend, and Agent
+  apt:
+    name:
+      - zabbix-server-pgsql
+      - zabbix-frontend-php
+      - zabbix-apache-conf
+      - zabbix-agent
+    state: present
+
+- name: Install PostgreSQL server locally
+  apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+    state: present
+
+- name: Ensure PostgreSQL is running and enabled
+  systemd:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: Create Zabbix database on local PostgreSQL
+  become_user: postgres
+  command: createdb zabbix
+  args:
+    creates: /var/lib/postgresql/.zabbix_db_created
+
+- name: Mark zabbix DB as created on local
+  file:
+    path: /var/lib/postgresql/.zabbix_db_created
+    state: touch
+
+- name: Create Zabbix database user on local PostgreSQL
+  become_user: postgres
+  command: >
+    psql -c "CREATE USER zabbix WITH PASSWORD '{{ zabbix_db_password }}';"
+  args:
+    creates: /var/lib/postgresql/.zabbix_user_created
+  failed_when: false
+
+- name: Mark zabbix user as created on local
+  file:
+    path: /var/lib/postgresql/.zabbix_user_created
+    state: touch
+
+- name: Grant privileges to zabbix user on local PostgreSQL
+  become_user: postgres
+  command: >
+    psql -c "GRANT ALL PRIVILEGES ON DATABASE zabbix TO zabbix;"
+  failed_when: false
+
+- name: Import initial Zabbix schema to local database
+  become_user: postgres
+  command: >
+    psql -d zabbix -U zabbix -f /usr/share/zabbix-sql-scripts/postgresql/server.sql
+  args:
+    creates: /var/lib/zabbix/.schema_imported
+  environment:
+    PGPASSWORD: "{{ zabbix_db_password }}"
+  failed_when: false
+
+- name: Mark schema as imported on local
+  file:
+    path: /var/lib/zabbix/.schema_imported
+    state: touch
+
+- name: Configure Zabbix server database connection (local)
+  lineinfile:
+    path: /etc/zabbix/zabbix_server.conf
+    regexp: "^#?{{ item.key }}"
+    line: "{{ item.key }}={{ item.value }}"
+  loop:
+    - { key: "DBHost", value: "localhost" }
+    - { key: "DBName", value: "zabbix" }
+    - { key: "DBUser", value: "zabbix" }
+    - { key: "DBPassword", value: "{{ zabbix_db_password }}" }
+    - { key: "DBPort", value: "5432" }
+  notify: Restart zabbix-server
+
+- name: Configure PHP for Zabbix frontend
+  lineinfile:
+    path: /etc/zabbix/apache.conf
+    regexp: "^#?php_value date.timezone"
+    line: "        php_value date.timezone {{ zabbix_php_timezone }}"
+  notify: Restart apache2
+
+- name: Ensure Zabbix Agent is running and enabled
+  systemd:
+    name: zabbix-agent
+    state: started
+    enabled: yes
+
+- name: Ensure Zabbix Server is running and enabled
+  systemd:
+    name: zabbix-server
+    state: started
+    enabled: yes
+
+- name: Ensure Apache is running and enabled
+  systemd:
+    name: apache2
+    state: started
+    enabled: yes
+
+- name: Configure Zabbix Agent to monitor all hosts
+  template:
+    src: zabbix_agentd.conf.j2
+    dest: /etc/zabbix/zabbix_agentd.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart zabbix-agent

@@ -1,0 +1,158 @@
+<mxfile host="app.diagrams.net" modified="2026-04-10T12:00:00.000Z" agent="5.0" version="24.0.0" type="device">
+  <diagram id="mediawiki-architecture" name="MediaWiki Architecture">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="Yandex Cloud VPC — mediawiki-vpc (10.0.0.0/16)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=16;fontStyle=1;verticalAlign=top;spacingTop=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="180" y="120" width="1040" height="720" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="Internet" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;arcSize=50;" vertex="1" parent="1">
+          <mxGeometry x="620" y="30" width="160" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" value="LB-01&#xa;Nginx Load Balancer&#xa;10.0.1.10 | Public: 111.88.246.67&#xa;2 vCPU / 2 GB RAM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;spacing=6;align=center;" vertex="1" parent="1">
+          <mxGeometry x="560" y="150" width="280" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="5" value="APP-01&#xa;MediaWiki + PHP&#xa;10.0.2.10&#xa;2 vCPU / 2 GB RAM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;spacing=6;align=center;" vertex="1" parent="1">
+          <mxGeometry x="340" y="300" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="6" value="APP-02&#xa;MediaWiki + PHP&#xa;10.0.2.11&#xa;2 vCPU / 2 GB RAM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;spacing=6;align=center;" vertex="1" parent="1">
+          <mxGeometry x="840" y="300" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="7" value="DB-01&#xa;PostgreSQL Master&#xa;10.0.3.10&#xa;2 vCPU / 2 GB RAM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;spacing=6;align=center;" vertex="1" parent="1">
+          <mxGeometry x="340" y="450" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="8" value="DB-02&#xa;PostgreSQL Replica&#xa;10.0.3.11&#xa;2 vCPU / 2 GB RAM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;spacing=6;align=center;" vertex="1" parent="1">
+          <mxGeometry x="840" y="450" width="220" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="9" value="ZABBIX-01&#xa;Zabbix Server + Frontend&#xa;10.0.4.10&#xa;2 vCPU / 2 GB RAM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;spacing=6;align=center;" vertex="1" parent="1">
+          <mxGeometry x="560" y="600" width="280" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="10" value="BACKUP-01&#xa;Backup Storage&#xa;10.0.5.10&#xa;2 vCPU / 2 GB / 30 GB Disk" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#7a5a7a;fontSize=12;fontStyle=1;spacing=6;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="600" width="260" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="11" value="HTTP/HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=2;fontSize=11;fontColor=#333333;" edge="1" parent="1" source="3" target="4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="12" value="HTTP" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=2;fontSize=11;fontColor=#333333;" edge="1" parent="1" source="4" target="5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="13" value="HTTP" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=2;fontSize=11;fontColor=#333333;" edge="1" parent="1" source="4" target="6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="14" value="TCP:5432" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=2;fontSize=11;fontColor=#333333;" edge="1" parent="1" source="5" target="7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="15" value="TCP:5432" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=2;fontSize=11;fontColor=#333333;" edge="1" parent="1" source="6" target="8">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="16" value="Streaming Replication (WAL)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b85450;strokeWidth=2;fontSize=10;fontColor=#b85450;dashed=1;" edge="1" parent="1" source="7" target="8">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="17" value="pg_dump / rsync" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a5a7a;strokeWidth=1;fontSize=10;fontColor=#7a5a7a;dashed=1;" edge="1" parent="1" source="7" target="10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7a5a7a;strokeWidth=1;dashed=1;" edge="1" parent="1" source="5" target="10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;strokeWidth=1;dashed=1;" edge="1" parent="1" source="4" target="9">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="480" y="195"/>
+              <mxPoint x="480" y="645"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;strokeWidth=1;dashed=1;" edge="1" parent="1" source="5" target="9">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="450" y="345"/>
+              <mxPoint x="450" y="645"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;strokeWidth=1;dashed=1;" edge="1" parent="1" source="6" target="9">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="950" y="345"/>
+              <mxPoint x="950" y="645"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;strokeWidth=1;dashed=1;" edge="1" parent="1" source="7" target="9">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="500" y="495"/>
+              <mxPoint x="500" y="645"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9673a6;strokeWidth=1;dashed=1;" edge="1" parent="1" source="8" target="9">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="900" y="495"/>
+              <mxPoint x="900" y="645"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="24" value="SSH Jump: You → LB-01 → All servers" style="text;html=1;strokeColor=none;fillColor=none;fontSize=12;fontStyle=2;align=center;verticalAlign=middle;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="560" y="860" width="280" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="25" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#cccccc;opacity=90;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="150" width="260" height="260" as="geometry"/>
+        </mxCell>
+        <mxCell id="26" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;fontSize=14;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="155" width="260" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="27" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1095" y="190" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="28" value="Load Balancer (LB)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="190" width="180" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="29" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1095" y="220" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="30" value="Application (APP)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="220" width="180" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="31" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1095" y="250" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="32" value="Database (DB)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="250" width="180" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="33" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1095" y="280" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="34" value="Monitoring (Zabbix)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="280" width="180" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="35" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#7a5a7a;" vertex="1" parent="1">
+          <mxGeometry x="1095" y="310" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="36" value="Backup" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="310" width="180" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="37" value="" style="endArrow=classic;html=1;strokeColor=#333333;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1095" y="360" as="sourcePoint"/>
+            <mxPoint x="1115" y="360" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="38" value="HTTP / TCP traffic" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="350" width="180" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="39" value="" style="endArrow=classic;html=1;strokeColor=#999999;strokeWidth=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1095" y="390" as="sourcePoint"/>
+            <mxPoint x="1115" y="390" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="40" value="Monitoring / Backups" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="380" width="180" height="20" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -7,7 +7,7 @@
 Проект включает развёртывание высокодоступной инфраструктуры для MediaWiki с:
 - Балансировкой нагрузки (Nginx)
 - Двумя серверами приложений MediaWiki
-- PostgreSQL кластером (Master + Replica)
+- PostgreSQL кластером (Primary + Replica)
 - Мониторингом (Zabbix)
 - Сервером резервного копирования
 
@@ -25,7 +25,7 @@
 
 ```
 diploma-project/
-├── terraform/           # Terraform конфигурация для Yandex Cloud
+├── terraform/              # Terraform конфигурация для Yandex Cloud
 │   ├── providers.tf
 │   ├── variables.tf
 │   ├── main.tf
@@ -33,121 +33,66 @@ diploma-project/
 │   ├── security-groups.tf
 │   ├── compute.tf
 │   └── outputs.tf
-├── ansible/             # Ansible playbooks для настройки серверов
+├── ansible/                # Ansible playbooks для настройки серверов
 │   ├── inventory/
 │   │   └── hosts.ini
-│   ├── playbooks/
-│   │   ├── nginx-lb.yml
-│   │   ├── mediawiki.yml
-│   │   ├── postgresql.yml
-│   │   ├── pg-replication.yml
-│   │   ├── zabbix.yml
-│   │   └── backup.yml
+│   ├── roles/
+│   │   ├── nginx-lb/
+│   │   ├── mediawiki/
+│   │   ├── postgresql/
+│   │   ├── zabbix/
+│   │   └── backup/
+│   ├── ansible.cfg
 │   └── site.yml
-├── docs/                # Документация
-│   ├── requirements.md
-│   ├── architecture.md
-│   ├── servers-config.md
-│   ├── recovery-plan.md
-│   └── diagrams/
-├── scripts/             # Скрипты для бэкапов
+├── scripts/                # Скрипты для автоматизации
+│   ├── update-inventory.sh
 │   ├── backup-fs.sh
 │   └── backup-db.sh
+├── DEPLOY.md               # Подробная инструкция по развёртыванию
 └── README.md
 ```
 
 ## 🚀 Быстрый старт
 
-### Предварительные требования
+Подробная инструкция: [DEPLOY.md](DEPLOY.md)
 
-- [Terraform](https://www.terraform.io/downloads) >= 1.0
-- [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) >= 2.9
-- [YC CLI](https://cloud.yandex.ru/docs/cli/quickstart)
-- Аккаунт в Yandex Cloud
-
-### 1. Клонирование репозитория
+### Кратко:
 
 ```bash
-git clone https://github.com/technik906-afk/diploma-project.git
-cd diploma-project
-```
-
-### 2. Настройка Yandex Cloud
-
-```bash
-# Инициализация профиля YC Cloud
-yc init
-
-# Создание сервисного аккаунта для Terraform
-yc iam service-account create --name terraform-sa
-yc iam service-account key create --service-account-name terraform-sa --output authorized_key.json
-yc resource-manager folder add-access-binding <folder-id> --role editor --service-account-name terraform-sa
-```
-
-### 3. Развёртывание инфраструктуры (Terraform)
-
-```bash
+# 1. Terraform
 cd terraform
+terraform init && terraform apply
 
-# Инициализация Terraform
-terraform init
+# 2. Update inventory
+./scripts/update-inventory.sh
 
-# Просмотр плана изменений
-terraform plan
-
-# Применение конфигурации
-terraform apply
-```
-
-### 4. Настройка серверов (Ansible)
-
-```bash
+# 3. Ansible
 cd ../ansible
-
-# Проверка подключения
-ansible all -m ping
-
-# Запуск всех playbooks
 ansible-playbook site.yml
 
-# Или выборочно
-ansible-playbook playbooks/nginx-lb.yml
-ansible-playbook playbooks/mediawiki.yml
-ansible-playbook playbooks/postgresql.yml
+# 4. MediaWiki setup
+# Откройте http://111.88.246.67 в браузере
+
+# 5. Zabbix setup
+# См. DEPLOY.md раздел 5
 ```
 
 ## 💰 Стоимость
 
 Все виртуальные машины используют прерываемые инстансы и сетевые HDD для экономии:
 
-| Сервер | vCPU | RAM | Disk | Цена/мес (руб) |
-|--------|------|-----|------|----------------|
-| LB-01 | 2 | 2GB | 20GB | ~130 |
-| APP-01, APP-02 | 2 | 2GB | 20GB | ~260 |
-| DB-01, DB-02 | 2 | 2GB | 20GB | ~260 |
-| ZABBIX-01 | 2 | 2GB | 20GB | ~130 |
-| BACKUP-01 | 2 | 2GB | 30GB | ~144 |
-| **Итого** | | | | **~924 руб/мес** |
+| Сервер | vCPU | RAM | Disk |
+|--------|------|-----|------|
+| LB-01 | 2 | 2GB | 20GB |
+| APP-01, APP-02 | 2 | 2GB | 20GB |
+| DB-01, DB-02 | 2 | 2GB | 20GB |
+| ZABBIX-01 | 2 | 2GB | 20GB |
+| BACKUP-01 | 2 | 2GB | 30GB |
 
-> ⚠️ Цены ориентировочные. Актуальные цены проверяйте в [калькуляторе Yandex Cloud](https://cloud.yandex.ru/calculator)
-
-## 📚 Документация
-
-- [Требования к инфраструктуре](docs/requirements.md)
-- [Конфигурация серверов](docs/servers-config.md)
-- [Схема архитектуры](docs/architecture.md)
-- [План восстановления](docs/recovery-plan.md)
 
 ## 🔐 Безопасность
 
 - SSH доступ только через jump-host (LB-01)
 - Security groups ограничивают трафик между компонентами
-- Пароли БД хранятся в Ansible Vault (не в репозитории)
-
-## 👤 Автор
-
-technik906-afk
-
-## 📄 Лицензия
-
-MIT
+- Все серверы в отдельных подсетях
+- Пароли БД хранятся в переменных Ansible (не в репозитории)

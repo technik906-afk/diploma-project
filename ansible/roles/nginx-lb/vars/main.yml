@@ -1,0 +1,3 @@
+---
+nginx_upstream_name: mediawiki_backend
+nginx_listen_port: 80

@@ -1,0 +1,9 @@
+# Zabbix Agent Configuration
+Server={{ zabbix_server_ip }}
+ServerActive={{ zabbix_server_ip }}
+Hostname={{ inventory_hostname }}
+LogType=file
+LogFile=/var/log/zabbix-agent/zabbix_agentd.log
+LogFileSize=10
+DebugLevel=3
+Timeout=10

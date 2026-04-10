@@ -1,0 +1,35 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    server_name _;
+
+    root /var/www/mediawiki;
+    index index.php index.html;
+
+    client_max_body_size 50m;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_pass unix:/run/php/php{{ php_version }}-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_index index.php;
+    }
+
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location ^~ /images/ {
+        location ~* \.(gif|png|jpg|jpeg|svg)$ {
+            expires 30d;
+            add_header Cache-Control "public";
+        }
+        deny all;
+    }
+}
