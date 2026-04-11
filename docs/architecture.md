@@ -11,6 +11,7 @@
 > 📐 Интерактивная схема: [`docs/diagrams/architecture.drawio`](diagrams/architecture.drawio)
 > Открыть: [app.diagrams.net](https://app.diagrams.net/) → перетащить файл
 
+![Схема архитектуры инфраструктуры](diagrams/architecture.drawio.png)
 
 ---
 
