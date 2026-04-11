@@ -64,7 +64,7 @@
       <td>2 GB</td>
       <td>20 GB HDD</td>
       <td>✅</td>
-      <td>✅ 111.88.246.67</td>
+      <td>✅ 111.88.247.210</td>
       <td><code>10.0.1.10</code></td>
     </tr>
     <tr>
@@ -413,31 +413,31 @@ VPC: mediawiki-vpc  •  CIDR: 10.0.0.0/16  •  Zone: ru-central1-a
   <tbody>
     <tr>
       <td><strong>LB-01</strong></td>
-      <td><code>ssh -i ~/.ssh/yandex_cloud ubuntu@111.88.246.67</code></td>
+      <td><code>ssh -i ~/.ssh/yandex_cloud ubuntu@111.88.247.210</code></td>
     </tr>
     <tr>
       <td><strong>APP-01</strong></td>
-      <td><code>ssh -J ubuntu@111.88.246.67 ubuntu@10.0.2.10 -i ~/.ssh/yandex_cloud</code></td>
+      <td><code>ssh -J ubuntu@111.88.247.210 ubuntu@10.0.2.10 -i ~/.ssh/yandex_cloud</code></td>
     </tr>
     <tr>
       <td><strong>APP-02</strong></td>
-      <td><code>ssh -J ubuntu@111.88.246.67 ubuntu@10.0.2.11 -i ~/.ssh/yandex_cloud</code></td>
+      <td><code>ssh -J ubuntu@111.88.247.210 ubuntu@10.0.2.11 -i ~/.ssh/yandex_cloud</code></td>
     </tr>
     <tr>
       <td><strong>DB-01</strong></td>
-      <td><code>ssh -J ubuntu@111.88.246.67 ubuntu@10.0.3.10 -i ~/.ssh/yandex_cloud</code></td>
+      <td><code>ssh -J ubuntu@111.88.247.210 ubuntu@10.0.3.10 -i ~/.ssh/yandex_cloud</code></td>
     </tr>
     <tr>
       <td><strong>DB-02</strong></td>
-      <td><code>ssh -J ubuntu@111.88.246.67 ubuntu@10.0.3.11 -i ~/.ssh/yandex_cloud</code></td>
+      <td><code>ssh -J ubuntu@111.88.247.210 ubuntu@10.0.3.11 -i ~/.ssh/yandex_cloud</code></td>
     </tr>
     <tr>
       <td><strong>ZABBIX-01</strong></td>
-      <td><code>ssh -J ubuntu@111.88.246.67 ubuntu@10.0.4.10 -i ~/.ssh/yandex_cloud</code></td>
+      <td><code>ssh -J ubuntu@111.88.247.210 ubuntu@10.0.4.10 -i ~/.ssh/yandex_cloud</code></td>
     </tr>
     <tr>
       <td><strong>BACKUP-01</strong></td>
-      <td><code>ssh -J ubuntu@111.88.246.67 ubuntu@10.0.5.10 -i ~/.ssh/yandex_cloud</code></td>
+      <td><code>ssh -J ubuntu@111.88.247.210 ubuntu@10.0.5.10 -i ~/.ssh/yandex_cloud</code></td>
     </tr>
   </tbody>
 </table>
@@ -494,7 +494,7 @@ variable "subnets" {
 
 ```ssh
 Host yc-lb
-    HostName 111.88.246.67
+    HostName 111.88.247.210
     User ubuntu
     IdentityFile ~/.ssh/yandex_cloud
 
@@ -539,7 +539,7 @@ Host yc-backup
 
 ```ini
 [lb]
-lb-01 ansible_host=111.88.246.67
+lb-01 ansible_host=111.88.247.210
 
 [app]
 app-01 ansible_host=10.0.2.10

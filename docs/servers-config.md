@@ -22,7 +22,7 @@
   <tr><td><strong>vCPU / RAM</strong></td><td>2 / 2 GB</td></tr>
   <tr><td><strong>Disk</strong></td><td>20 GB (network-hdd)</td></tr>
   <tr><td><strong>Preemptible</strong></td><td>✅ Да</td></tr>
-  <tr><td><strong>Public IP</strong></td><td>✅ 111.88.246.67</td></tr>
+  <tr><td><strong>Public IP</strong></td><td>✅ 111.88.247.210</td></tr>
   <tr><td><strong>Private IP</strong></td><td><code>10.0.1.10</code></td></tr>
 </table>
 
@@ -277,37 +277,37 @@ VPC: mediawiki-vpc  •  CIDR: 10.0.0.0/16  •  Zone: ru-central1-a
     <tr>
       <td><strong>LB-01</strong></td>
       <td><code>10.0.1.10</code></td>
-      <td><code>ssh -i ~/.ssh/yandex_cloud ubuntu@111.88.246.67</code></td>
+      <td><code>ssh -i ~/.ssh/yandex_cloud ubuntu@111.88.247.210</code></td>
     </tr>
     <tr>
       <td><strong>APP-01</strong></td>
       <td><code>10.0.2.10</code></td>
-      <td><code>ssh -J ubuntu@111.88.246.67 ubuntu@10.0.2.10 -i ~/.ssh/yandex_cloud</code></td>
+      <td><code>ssh -J ubuntu@111.88.247.210 ubuntu@10.0.2.10 -i ~/.ssh/yandex_cloud</code></td>
     </tr>
     <tr>
       <td><strong>APP-02</strong></td>
       <td><code>10.0.2.11</code></td>
-      <td><code>ssh -J ubuntu@111.88.246.67 ubuntu@10.0.2.11 -i ~/.ssh/yandex_cloud</code></td>
+      <td><code>ssh -J ubuntu@111.88.247.210 ubuntu@10.0.2.11 -i ~/.ssh/yandex_cloud</code></td>
     </tr>
     <tr>
       <td><strong>DB-01</strong></td>
       <td><code>10.0.3.10</code></td>
-      <td><code>ssh -J ubuntu@111.88.246.67 ubuntu@10.0.3.10 -i ~/.ssh/yandex_cloud</code></td>
+      <td><code>ssh -J ubuntu@111.88.247.210 ubuntu@10.0.3.10 -i ~/.ssh/yandex_cloud</code></td>
     </tr>
     <tr>
       <td><strong>DB-02</strong></td>
       <td><code>10.0.3.11</code></td>
-      <td><code>ssh -J ubuntu@111.88.246.67 ubuntu@10.0.3.11 -i ~/.ssh/yandex_cloud</code></td>
+      <td><code>ssh -J ubuntu@111.88.247.210 ubuntu@10.0.3.11 -i ~/.ssh/yandex_cloud</code></td>
     </tr>
     <tr>
       <td><strong>ZABBIX-01</strong></td>
       <td><code>10.0.4.10</code></td>
-      <td><code>ssh -J ubuntu@111.88.246.67 ubuntu@10.0.4.10 -i ~/.ssh/yandex_cloud</code></td>
+      <td><code>ssh -J ubuntu@111.88.247.210 ubuntu@10.0.4.10 -i ~/.ssh/yandex_cloud</code></td>
     </tr>
     <tr>
       <td><strong>BACKUP-01</strong></td>
       <td><code>10.0.5.10</code></td>
-      <td><code>ssh -J ubuntu@111.88.246.67 ubuntu@10.0.5.10 -i ~/.ssh/yandex_cloud</code></td>
+      <td><code>ssh -J ubuntu@111.88.247.210 ubuntu@10.0.5.10 -i ~/.ssh/yandex_cloud</code></td>
     </tr>
   </tbody>
 </table>

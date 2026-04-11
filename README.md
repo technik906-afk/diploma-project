@@ -71,7 +71,7 @@ cd ../ansible
 ansible-playbook site.yml
 
 # 4. MediaWiki setup
-# Откройте http://111.88.246.67 в браузере
+# Откройте http://111.88.247.210 в браузере
 
 # 5. Zabbix setup
 # См. DEPLOY.md раздел 5

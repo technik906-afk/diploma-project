@@ -153,7 +153,7 @@ Zabbix развёрнут с настройкой на удалённую БД. 
 
 ```bash
 # На zabbix-01 (через LB-01 jump-host)
-LB=111.88.246.67
+LB=111.88.247.210
 ssh -J ubuntu@$LB ubuntu@10.0.4.10 "sudo apt-get install -y postgresql postgresql-client php-pgsql"
 ssh -J ubuntu@$LB ubuntu@10.0.4.10 "sudo -u postgres psql -c \"CREATE USER zabbix WITH PASSWORD 'ZabbixPass2024!';\""
 ssh -J ubuntu@$LB ubuntu@10.0.4.10 "sudo -u postgres psql -c \"CREATE DATABASE zabbix OWNER zabbix;\""
@@ -200,7 +200,7 @@ http://<LB_PUBLIC_IP>/zabbix
 Проверка:
 
 ```bash
-LB=111.88.246.67
+LB=111.88.247.210
 # Запуск вручную
 ssh -J ubuntu@$LB ubuntu@10.0.5.10 "sudo /opt/backup/backup-db.sh"
 ssh -J ubuntu@$LB ubuntu@10.0.5.10 "sudo /opt/backup/backup-fs.sh"
@@ -225,7 +225,7 @@ curl -I http://${LB_IP}
 ### PostgreSQL репликация
 
 ```bash
-LB=111.88.246.67
+LB=111.88.247.210
 ssh -J ubuntu@$LB ubuntu@10.0.3.10 "sudo -u postgres psql -c 'SELECT pg_is_in_recovery();'"  # f (primary)
 ssh -J ubuntu@$LB ubuntu@10.0.3.11 "sudo -u postgres psql -c 'SELECT pg_is_in_recovery();'"  # t (replica)
 ```
@@ -237,7 +237,7 @@ ssh -J ubuntu@$LB ubuntu@10.0.3.11 "sudo -u postgres psql -c 'SELECT pg_is_in_re
 ### Бэкапы
 
 ```bash
-LB=111.88.246.67
+LB=111.88.247.210
 ssh -J ubuntu@$LB ubuntu@10.0.5.10 "sudo ls -lh /backup/mediawiki/db/"
 ```
 
@@ -253,7 +253,7 @@ Nginx автоматически переключает трафик на app-02
 
 1. Повысьте replica до primary:
    ```bash
-   LB=111.88.246.67
+   LB=111.88.247.210
    ssh -J ubuntu@$LB ubuntu@10.0.3.11 "sudo pg_ctlcluster 14 main promote"
    ```
 2. Обновите `LocalSettings.php` на app-серверах:
@@ -267,7 +267,7 @@ Nginx автоматически переключает трафик на app-02
 После возврата db-01:
 
 ```bash
-LB=111.88.246.67
+LB=111.88.247.210
 ssh -J ubuntu@$LB ubuntu@10.0.3.10 "sudo systemctl stop postgresql && sudo rm -rf /var/lib/postgresql/14/main && sudo mkdir -p /var/lib/postgresql/14/main && sudo chown postgres:postgres /var/lib/postgresql/14/main && sudo -u postgres pg_basebackup -h 10.0.3.11 -D /var/lib/postgresql/14/main -U replicator -P -v -R && sudo chmod 700 /var/lib/postgresql/14/main && sudo systemctl start postgresql@14-main"
 ```
 
