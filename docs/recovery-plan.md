@@ -3,7 +3,7 @@
 > 🔑 **Важно:** Все серверы кроме LB-01 не имеют публичных IP. Для подключения используйте SSH jump-host:
 >
 > ```bash
-> LB=111.88.247.210
+> LB=111.88.241.156
 > alias ssh-yc='ssh -o StrictHostKeyChecking=no -J ubuntu@$LB'
 > ```
 >
@@ -75,7 +75,7 @@ ansible-playbook site.yml --tags mediawiki --limit app-01
 #### При сбое DB-01 (Master)
 
 > **IP-адреса:**
-> - LB-01 (jump-host): `111.88.247.210`
+> - LB-01 (jump-host): `111.88.241.156`
 > - DB-01 (Master, сбой): `10.0.3.10`
 > - DB-02 (Replica): `10.0.3.11`
 > - APP-01: `10.0.2.10`
@@ -84,7 +84,7 @@ ansible-playbook site.yml --tags mediawiki --limit app-01
 **Шаг 1. Подключиться к DB-02 через jump-host:**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.3.11
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.3.11
 ```
 
 **Шаг 2. На DB-02 проверить статус реплики:**
@@ -120,7 +120,7 @@ exit
 **Шаг 6. Подключиться к APP-01:**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.2.10
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.2.10
 ```
 
 **Шаг 7. На APP-01 изменить IP базы данных в конфиге MediaWiki:**
@@ -158,7 +158,7 @@ exit
 **Шаг 10. Подключиться к APP-02:**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.2.11
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.2.11
 ```
 
 **Шаг 11. На APP-02 повторить шаги 7-8** (изменить `$wgDBserver` на `10.0.3.11` и перезапустить PHP-FPM).
@@ -172,7 +172,7 @@ exit
 **Шаг 13. Проверить работоспособность MediaWiki:**
 
 ```bash
-curl -o /dev/null -s -w "%{http_code}\n" http://111.88.247.210
+curl -o /dev/null -s -w "%{http_code}\n" http://111.88.241.156
 ```
 
 Ожидаемый результат: `200`.
@@ -196,7 +196,7 @@ yc compute instance start db-01
 **Шаг 2. Подключиться к DB-01:**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.3.10
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.3.10
 ```
 
 **Шаг 3. На DB-01 остановить PostgreSQL:**
@@ -272,7 +272,7 @@ exit
 #### При сбое DB-02 (Replica)
 
 > **IP-адреса:**
-> - LB-01 (jump-host): `111.88.247.210`
+> - LB-01 (jump-host): `111.88.241.156`
 > - DB-02 (Replica, сбой): `10.0.3.11`
 
 **Шаг 1. Запустить DB-02, если он выключен:**
@@ -284,7 +284,7 @@ yc compute instance start db-02
 **Шаг 2. Подключиться к DB-02:**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.3.11
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.3.11
 ```
 
 **Шаг 3. На DB-02 перенастроить репликацию через Ansible:**
@@ -316,7 +316,7 @@ exit
 ### 3.1. Восстановление файловой системы MediaWiki
 
 > **IP-адреса:**
-> - LB-01 (jump-host): `111.88.247.210`
+> - LB-01 (jump-host): `111.88.241.156`
 > - APP-01: `10.0.2.10`
 > - APP-02: `10.0.2.11`
 > - BACKUP-01: `10.0.5.10`
@@ -324,7 +324,7 @@ exit
 **Шаг 1. Подключиться к BACKUP-01:**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.5.10
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.5.10
 ```
 
 **Шаг 2. На BACKUP-01 найти последний бэкап:**
@@ -344,7 +344,7 @@ exit
 **Шаг 4. Подключиться к APP-01:**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.2.10
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.2.10
 ```
 
 **Шаг 5. На APP-01 остановить PHP-FPM:**
@@ -393,14 +393,14 @@ exit
 ### 3.2. Восстановление базы данных из бэкапа
 
 > **IP-адреса:**
-> - LB-01 (jump-host): `111.88.247.210`
+> - LB-01 (jump-host): `111.88.241.156`
 > - DB-01 (Master): `10.0.3.10`
 > - BACKUP-01: `10.0.5.10`
 
 **Шаг 1. Подключиться к BACKUP-01:**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.5.10
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.5.10
 ```
 
 **Шаг 2. На BACKUP-01 найти последний бэкап БД:**
@@ -420,7 +420,7 @@ exit
 **Шаг 4. Подключиться к DB-01:**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.3.10
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.3.10
 ```
 
 **Шаг 5. На DB-01 остановить PostgreSQL:**
@@ -476,14 +476,14 @@ ansible-playbook site.yml --tags postgresql
 ## 4. ✅ Проверка работоспособности после восстановления
 
 > **IP-адреса:**
-> - LB-01 (jump-host): `111.88.247.210`
+> - LB-01 (jump-host): `111.88.241.156`
 > - APP-01: `10.0.2.10`
 > - DB-01: `10.0.3.10`
 
 **Шаг 1. Проверить HTTP-доступность:**
 
 ```bash
-curl -I http://111.88.247.210
+curl -I http://111.88.241.156
 ```
 
 Ожидаемый результат: `HTTP/1.1 301` или `HTTP/1.1 200`.
@@ -491,7 +491,7 @@ curl -I http://111.88.247.210
 **Шаг 2. Проверить загрузку главной страницы MediaWiki:**
 
 ```bash
-curl http://111.88.247.210/index.php?title=Main_Page
+curl http://111.88.241.156/index.php?title=Main_Page
 ```
 
 Ожидаемый результат: HTML-код страницы MediaWiki.
@@ -499,7 +499,7 @@ curl http://111.88.247.210/index.php?title=Main_Page
 **Шаг 3. Подключиться к APP-01:**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.2.10
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.2.10
 ```
 
 **Шаг 4. На APP-01 проверить подключение к БД:**
@@ -519,7 +519,7 @@ exit
 **Шаг 6. Проверить доступность Zabbix:**
 
 ```bash
-curl -o /dev/null -s -w "%{http_code}\n" http://111.88.247.210/zabbix/
+curl -o /dev/null -s -w "%{http_code}\n" http://111.88.241.156/zabbix/
 ```
 
 Ожидаемый результат: `200`.
@@ -527,7 +527,7 @@ curl -o /dev/null -s -w "%{http_code}\n" http://111.88.247.210/zabbix/
 **Шаг 7. Подключиться к APP-01 и проверить Nginx:**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.2.10
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.2.10
 sudo systemctl status nginx
 ```
 
@@ -542,7 +542,7 @@ exit
 **Шаг 9. Подключиться к DB-01 и проверить PostgreSQL:**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.3.10
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.3.10
 sudo systemctl status postgresql
 ```
 
@@ -604,14 +604,14 @@ ansible zabbix -m systemd -a "name=zabbix-server"
 ### Просмотр логов Nginx на APP-01
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.2.10
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.2.10
 sudo journalctl -u nginx -f
 ```
 
 ### Просмотр логов PostgreSQL на DB-01
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.3.10
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.3.10
 sudo journalctl -u postgresql -f
 ```
 
@@ -620,7 +620,7 @@ sudo journalctl -u postgresql -f
 **Проверка DB-01 (должен быть мастером):**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.3.10
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.3.10
 sudo -u postgres psql -c "SELECT pg_is_in_recovery();"
 ```
 
@@ -629,7 +629,7 @@ sudo -u postgres psql -c "SELECT pg_is_in_recovery();"
 **Проверка DB-02 (должен быть репликой):**
 
 ```bash
-ssh -J ubuntu@111.88.247.210 ubuntu@10.0.3.11
+ssh -J ubuntu@111.88.241.156 ubuntu@10.0.3.11
 sudo -u postgres psql -c "SELECT pg_is_in_recovery();"
 ```
 

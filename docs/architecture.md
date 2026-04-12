@@ -21,7 +21,7 @@
 
 <table>
   <tr><td><strong>Private IP</strong></td><td><code>10.0.1.10</code></td></tr>
-  <tr><td><strong>Public IP</strong></td><td><code>111.88.247.210</code></td></tr>
+  <tr><td><strong>Public IP</strong></td><td><code>111.88.241.156</code></td></tr>
   <tr><td><strong>vCPU / RAM</strong></td><td>2 / 2 GB</td></tr>
   <tr><td><strong>ПО</strong></td><td>Nginx (upstream балансировка)</td></tr>
   <tr><td><strong>Порты</strong></td><td>80 (HTTP), 443 (HTTPS), 22 (SSH)</td></tr>
